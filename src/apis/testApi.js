@@ -1,7 +1,7 @@
-import httpInstance from "@/utils/http"
+// import httpInstance from "@/utils/http"
 
-export function getCategoryApi() {
-  return httpInstance({
-    url: '/home/category/head'
-  })
-}
+// export function getCategoryApi() {
+//   return httpInstance({
+//     url: '/home/category/head'
+//   })
+// }
