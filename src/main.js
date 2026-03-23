@@ -11,9 +11,9 @@ import '@/styles/common.scss'
 const app = createApp(App)
 
 //测试接口函数
-getCategoryApi().then(res => {
-  console.log(res.result);
-})
+// getCategoryApi().then(res => {
+//   console.log(res);
+// })
 
 app.use(createPinia())
 app.use(router)
