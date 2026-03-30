@@ -131,7 +131,7 @@ onMounted(() => getBanner())
   .home-banner {
     width: 1240px;
     height: 500px;
-
+    margin: 0 auto;
 
     img {
       width: 100%;
