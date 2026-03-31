@@ -5,23 +5,26 @@ import { ref } from 'vue'
 import { onMounted } from 'vue'
 import { getBannerAPI } from '@/apis/home';
 import GoodsItem from '@/views/Home/components/GoodsItem.vue'
+import { onBeforeRouteUpdate } from 'vue-router';
 
 
 //获取数据
 const categoryData = ref({})
 const route = useRoute()
-const detailedCategory = async () => {
-  const res = await detailedCategoryAPI(route.params.id)
-  console.log(res);
+const detailedCategory = async (id = route.params.id) => {
+  const res = await detailedCategoryAPI(id)
   categoryData.value = res.result
 }
 
 onMounted(() => detailedCategory())
+
+onBeforeRouteUpdate((to) => {
+  detailedCategory(to.params.id)
+})
 //banner图
 const bannerList = ref([])
 const getBanner = async () => {
   const res = await getBannerAPI({ distributionSite: '2' })
-  console.log(res)
   bannerList.value = res.result
 }
 
