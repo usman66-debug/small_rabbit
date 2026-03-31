@@ -13,14 +13,21 @@ export const useSubDetail = () => {
   })
   const getSubDetail = async () => {
     const res = await getSubCategoryAPI(data.value)
-    console.log(res);
     goodsList.value = res.result.items
   }
 
   onMounted(() => getSubDetail())
 
+  const tabChange = () => {
+    console.log('排序方式改变了', data.value.sortField);
+    data.value.page = 1
+    getSubDetail()
+  }
+
   return {
-    goodsList
+    goodsList,
+    data,
+    tabChange
   }
 }
 
