@@ -4,7 +4,7 @@ import { useSubCategory } from './composables/useSubCategory'
 import { useSubDetail } from './composables/useSubDetail'
 
 const { categoryList } = useSubCategory()
-const { goodsList, data, tabChange } = useSubDetail()
+const { goodsList, data, tabChange, load, disabled } = useSubDetail()
 
 
 </script>
@@ -26,7 +26,7 @@ const { goodsList, data, tabChange } = useSubDetail()
         <el-tab-pane label="最高人气" name="orderNum"></el-tab-pane>
         <el-tab-pane label="评论最多" name="evaluateNum"></el-tab-pane>
       </el-tabs>
-      <div class="body">
+      <div class="body" v-infinite-scroll="load" :infinite-scroll-disabled="disabled">
         <!-- 商品列表-->
         <GoodsItem v-for="goods in goodsList" :good="goods" :key="goods.id" />
       </div>
