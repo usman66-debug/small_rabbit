@@ -1,5 +1,6 @@
 <script setup>
 import { useGoodsDetail } from './composables/useGoodsDetail';
+import detailHot from './components/detailHot.vue'
 
 const { detailList } = useGoodsDetail()
 
@@ -114,7 +115,8 @@ const { detailList } = useGoodsDetail()
             </div>
             <!-- 24热榜+专题推荐 -->
             <div class="goods-aside">
-
+              <detailHot />
+              <detailHot />
             </div>
           </div>
         </div>
