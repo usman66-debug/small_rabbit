@@ -17,14 +17,17 @@ const router = createRouter({
           path: '',
           component: Home
         },
+        // 一级分类
         {
           path: '/category/:id',
           component: Category
         },
+        // 二级分类
         {
           path: '/category/sub/:id',
           component: SubCategory
         },
+        // 详情页
         {
           path: '/detail/:id',
           component: Detail
