@@ -15,13 +15,21 @@ const activeIndex = ref(0)
 const target = ref(null)
 const left = ref(0)
 const top = ref(0)
+
+const positionX = ref(0)
+const positionY = ref(0)
+
 const enterCheck = (i) => {
   activeIndex.value = i
 }
 
 const { elementX, elementY, isOutside } = useMouseInElement(target)
 
-watch([elementX, elementY], () => {
+watch([elementX, elementY, isOutside], () => {
+  //性能优化，鼠标不在盒子里面就不执行逻辑
+  if (isOutside.value) {
+    return
+  }
   if (elementX.value >= 100 && elementX.value <= 300) {
     left.value = elementX.value - 100
   }
@@ -40,12 +48,15 @@ watch([elementX, elementY], () => {
   if (elementY.value < 100) {
     top.value = 0
   }
+  positionX.value = -left.value * 2
+  positionY.value = -top.value * 2
 })
+
+
 </script>
 
 
 <template>
-  {{ elementX }}, {{ elementY }}, {{ isOutside }}
   <div class="goods-image">
     <!-- 左侧大图-->
     <div class="middle" ref="target">
@@ -62,11 +73,11 @@ watch([elementX, elementY], () => {
     <!-- 放大镜大图 -->
     <div class="large" :style="[
       {
-        backgroundImage: `url(${imageList[0]})`,
-        backgroundPositionX: `0px`,
-        backgroundPositionY: `0px`,
+        backgroundImage: `url(${imageList[activeIndex]})`,
+        backgroundPositionX: `${positionX}px`,
+        backgroundPositionY: `${positionY}px`,
       },
-    ]" v-show="false"></div>
+    ]" v-show="!isOutside"></div>
   </div>
 </template>
 
