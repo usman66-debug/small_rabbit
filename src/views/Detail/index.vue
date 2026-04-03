@@ -115,8 +115,8 @@ const { detailList } = useGoodsDetail()
             </div>
             <!-- 24热榜+专题推荐 -->
             <div class="goods-aside">
-              <detailHot />
-              <detailHot />
+              <detailHot :hot-type="1" />
+              <detailHot :hot-type="2" />
             </div>
           </div>
         </div>
