@@ -2,8 +2,13 @@
 import { useGoodsDetail } from './composables/useGoodsDetail';
 import detailHot from './components/detailHot.vue'
 import ImageView from '@/components/ImageView/index.vue'
+import XtxSku from '@/components/XtxSku/index.vue'
 
 const { detailList } = useGoodsDetail()
+//检验SKU组件的emit部分
+const emitChange = (emit) => {
+  console.log(emit);
+}
 
 </script>
 
@@ -82,7 +87,7 @@ const { detailList } = useGoodsDetail()
                 </dl>
               </div>
               <!-- sku组件 -->
-
+              <XtxSku :goods="detailList" @change="emitChange" />
               <!-- 数据组件 -->
 
               <!-- 按钮组件 -->
