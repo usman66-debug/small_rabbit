@@ -1,6 +1,7 @@
 <script setup>
 import { useGoodsDetail } from './composables/useGoodsDetail';
 import detailHot from './components/detailHot.vue'
+import ImageView from '@/components/ImageView/index.vue'
 
 const { detailList } = useGoodsDetail()
 
@@ -32,7 +33,7 @@ const { detailList } = useGoodsDetail()
           <div class="goods-info">
             <div class="media">
               <!-- 图片预览区 -->
-
+              <ImageView />
               <!-- 统计数量 -->
               <ul class="goods-sales">
                 <li>
