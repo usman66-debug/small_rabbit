@@ -1,5 +1,6 @@
 import { createApp, onMounted } from 'vue'
 import { createPinia } from 'pinia'
+import { componentPlugin } from '@/components/index'
 
 import App from './App.vue'
 import router from './router'
@@ -16,5 +17,7 @@ app.use(createPinia())
 app.use(router)
 //注册懒加载插件
 app.use(lazyPlugin)
+//注册全局组件
+app.use(componentPlugin)
 app.mount('#app')
 
