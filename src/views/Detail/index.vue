@@ -1,8 +1,7 @@
 <script setup>
 import { useGoodsDetail } from './composables/useGoodsDetail';
 import detailHot from './components/detailHot.vue'
-import ImageView from '@/components/ImageView/index.vue'
-import XtxSku from '@/components/XtxSku/index.vue'
+
 
 const { detailList } = useGoodsDetail()
 //检验SKU组件的emit部分
@@ -38,7 +37,7 @@ const emitChange = (emit) => {
           <div class="goods-info">
             <div class="media">
               <!-- 图片预览区 -->
-              <ImageView :image-list="detailList.mainPictures" />
+              <XtxImageView :image-list="detailList.mainPictures" />
               <!-- 统计数量 -->
               <ul class="goods-sales">
                 <li>
