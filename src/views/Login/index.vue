@@ -17,7 +17,6 @@ const rules = {
   // 以上默认的配置rules的写法不能覆盖我们的需求时，我们就需要以下自定义校验逻辑
   agree: [{
     validator: (rule, value, callback) => {
-      console.log(value);
       if (value) {
         callback()
       }
@@ -26,6 +25,19 @@ const rules = {
       }
     }
   }]
+}
+//在点击登录时要对所有需要校验的表单进行统一校验
+//通过给标签绑定ref来获取form实例,在这之后才能调用实例方法
+const formRef = ref(null)
+const loginCheck = () => {
+  //调用实例方法
+  //参数valid:所有表单验证都通过后才为true
+  formRef.value.validate((valid) => {
+    console.log(valid);
+    if (valid) {
+      //做出登录操作
+    }
+  })
 }
 </script>
 
@@ -52,7 +64,7 @@ const rules = {
         <div class="account-box">
           <div class="form">
             <!-- 绑定表单对象和规则对象 -->
-            <el-form :model="form" :rules="rules" label-position="right" label-width="60px" status-icon>
+            <el-form ref="formRef" :model="form" :rules="rules" label-position="right" label-width="60px" status-icon>
               <!-- 绑定表单域的校验字段名 -->
               <el-form-item prop="account" label="账户">
                 <!-- 双向绑定表单对象里面的对应字段。
@@ -69,7 +81,7 @@ const rules = {
                   我已同意隐私条款和服务条款
                 </el-checkbox>
               </el-form-item>
-              <el-button size="large" class="subBtn">点击登录</el-button>
+              <el-button size="large" class="subBtn" @click="loginCheck">点击登录</el-button>
             </el-form>
           </div>
         </div>
