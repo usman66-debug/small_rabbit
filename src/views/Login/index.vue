@@ -1,6 +1,11 @@
 <script setup>
 //表单校验（账号名+密码）
 import { ref } from 'vue'
+import { loginAPI } from '@/apis/user'
+import { useRouter } from 'vue-router'
+//手动引入弹窗样式组件（因为在script中自动导入插件可能无法识别el函数）
+import { ElMessage } from 'element-plus'
+import 'element-plus/theme-chalk/el-message.css'
 //准备表单对象
 const form = ref({
   account: '',
@@ -29,13 +34,23 @@ const rules = {
 //在点击登录时要对所有需要校验的表单进行统一校验
 //通过给标签绑定ref来获取form实例,在这之后才能调用实例方法
 const formRef = ref(null)
+const router = useRouter()
 const loginCheck = () => {
+  const { account, password } = form.value
   //调用实例方法
   //参数valid:所有表单验证都通过后才为true
-  formRef.value.validate((valid) => {
+  formRef.value.validate(async (valid) => {
     console.log(valid);
     if (valid) {
       //做出登录操作
+      const res = await loginAPI({ account, password })
+      console.log(res);
+      //跳转到首页 ，给出成功弹窗并且防止用户回退到登录页面
+      ElMessage({
+        type: 'success',
+        message: '登录成功'
+      })
+      router.replace({ path: '/' })
     }
   })
 }
