@@ -1,8 +1,8 @@
 <script setup>
 //表单校验（账号名+密码）
 import { ref } from 'vue'
-import { loginAPI } from '@/apis/user'
 import { useRouter } from 'vue-router'
+import { useGetUser } from '@/stores/user'
 //手动引入弹窗样式组件（因为在script中自动导入插件可能无法识别el函数）
 import { ElMessage } from 'element-plus'
 import 'element-plus/theme-chalk/el-message.css'
@@ -37,14 +37,14 @@ const formRef = ref(null)
 const router = useRouter()
 const loginCheck = () => {
   const { account, password } = form.value
+  const getUser = useGetUser()
   //调用实例方法
   //参数valid:所有表单验证都通过后才为true
-  formRef.value.validate(async (valid) => {
+  formRef.value.validate((valid) => {
     console.log(valid);
     if (valid) {
       //做出登录操作
-      const res = await loginAPI({ account, password })
-      console.log(res);
+      getUser.getUserInfo({ account, password })
       //跳转到首页 ，给出成功弹窗并且防止用户回退到登录页面
       ElMessage({
         type: 'success',
