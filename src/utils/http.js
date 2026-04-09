@@ -1,5 +1,6 @@
 //axios基础封装
 import axios from "axios"
+import { useGetUser } from "@/stores/user"
 import { ElMessage } from 'element-plus'
 import 'element-plus/theme-chalk/el-message.css'
 
@@ -10,7 +11,16 @@ const httpInstance = axios.create({
 
 //axios请求拦截器
 httpInstance.interceptors.request.use(
-  config => config, e => Promise.reject(e)
+  config => {
+    //从pinia中获取token数据
+    const getUserInfo = useGetUser()
+    const token = getUserInfo.userInfo.token
+    //根据后端要求拼接token
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
+  }, e => Promise.reject(e)
 )
 
 //axios响应拦截器
