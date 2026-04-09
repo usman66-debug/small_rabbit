@@ -1,6 +1,7 @@
 //axios基础封装
 import axios from "axios"
 import { useGetUser } from "@/stores/user"
+import router from '@/router'
 import { ElMessage } from 'element-plus'
 import 'element-plus/theme-chalk/el-message.css'
 
@@ -13,8 +14,8 @@ const httpInstance = axios.create({
 httpInstance.interceptors.request.use(
   config => {
     //从pinia中获取token数据
-    const getUserInfo = useGetUser()
-    const token = getUserInfo.userInfo.token
+    const getUser = useGetUser()
+    const token = getUser.userInfo.token
     //根据后端要求拼接token
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
@@ -31,6 +32,14 @@ httpInstance.interceptors.response.use(
       type: 'warning',
       message: e.response.data.message
     })
+
+    //当401token失效时，清除用户本地数据并且跳转至登录页面
+    if (e.response.status === 401) {
+      const getUser = useGetUser()
+      getUser.clearUser()
+      router.push('/login')
+    }
+
     return Promise.reject(e)
   }
 )
