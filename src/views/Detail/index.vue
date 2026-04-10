@@ -1,12 +1,43 @@
 <script setup>
 import { useGoodsDetail } from './composables/useGoodsDetail';
 import detailHot from './components/detailHot.vue'
+import { ref } from 'vue'
+import { ElMessage } from 'element-plus';
+import { useCartStore } from '@/stores/cartStore'
 
 
 const { detailList } = useGoodsDetail()
-//检验SKU组件的emit部分
-const emitChange = (emit) => {
+const cartStore = useCartStore()
+
+let skuObj = ref({})
+const skuChange = (emit) => {
   console.log(emit);
+  skuObj.value = emit
+}
+
+const count = ref(1)
+const countChange = (count) => {
+  console.log(count);
+}
+
+const addCartList = () => {
+  if (skuObj.value.skuId) {
+    //加入购物车
+    cartStore.addCartList(
+      {
+        id: detailList.value.id,
+        name: detailList.value.name,
+        picture: detailList.value.mainPictures[0],
+        price: detailList.value.price,
+        count: count.value,
+        skuId: skuObj.value.skuId,
+        attrsText: skuObj.value.specsText,
+        selected: true
+      }
+    )
+  } else {
+    ElMessage.warning('请选择规格！！！')
+  }
 }
 
 </script>
@@ -86,12 +117,12 @@ const emitChange = (emit) => {
                 </dl>
               </div>
               <!-- sku组件 -->
-              <XtxSku :goods="detailList" @change="emitChange" />
+              <XtxSku :goods="detailList" @change="skuChange" />
               <!-- 数据组件 -->
-
+              <el-input-number v-model="count" @change="countChange" />
               <!-- 按钮组件 -->
               <div>
-                <el-button size="large" class="btn">
+                <el-button size="large" class="btn" @click="addCartList">
                   加入购物车
                 </el-button>
               </div>
