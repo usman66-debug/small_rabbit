@@ -2,7 +2,6 @@
 import { useCartStore } from '@/stores/cartStore'
 
 const cartStore = useCartStore()
-console.log(cartStore.cartList);
 </script>
 
 <template>

@@ -15,9 +15,16 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
+  const delCart = (skuId) => {
+    const itm = cartList.value.findIndex((item) => item.skuId === skuId)
+    //注意splice和slice
+    cartList.value.splice(itm, 1)
+  }
+
   return {
     cartList,
-    addCartList
+    addCartList,
+    delCart
   }
 }, {
   persist: true
