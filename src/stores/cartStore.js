@@ -1,6 +1,7 @@
 //存放购物车相关的数据
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { computed } from 'vue'
 
 export const useCartStore = defineStore('cart', () => {
   const cartList = ref([])
@@ -21,10 +22,15 @@ export const useCartStore = defineStore('cart', () => {
     cartList.value.splice(itm, 1)
   }
 
+  //计算属性计算购物车总共的件数和money
+  const amount = computed(() => cartList.value.reduce((accumulator, currentNum) => accumulator + currentNum.count, 0))
+  const totalMoney = computed(() => cartList.value.reduce((accumulator, currentNum) => accumulator + currentNum.count * currentNum.price, 0))
   return {
     cartList,
     addCartList,
-    delCart
+    delCart,
+    amount,
+    totalMoney
   }
 }, {
   persist: true
