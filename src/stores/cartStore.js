@@ -3,14 +3,20 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { computed } from 'vue'
 import { useGetUser } from './user'
-import { insertCartAPI } from '@/apis/cart'
-import { getNewCartAPI } from '@/apis/cart'
+import { insertCartAPI, getNewCartAPI, deleteCartAPI } from '@/apis/cart'
 
 
 export const useCartStore = defineStore('cart', () => {
   const getUser = useGetUser()
   const cartList = ref([])
   const isLogin = computed(() => getUser.userInfo.token)
+
+  //获取并更新购物车列表
+  const updateCart = async () => {
+    const res = await getNewCartAPI()
+    cartList.value = res.result
+  }
+
   const addCartList = async (goods) => {
     const { skuId, count } = goods
     //判断是否登录
@@ -18,9 +24,7 @@ export const useCartStore = defineStore('cart', () => {
       //添加购物车
       await insertCartAPI({ skuId, count })
       //从后端获取最新购物车信息
-      const res = await getNewCartAPI()
-      console.dir(res);
-      cartList.value = res.result
+      updateCart()
     } else {
       //添加购物车操作
       //判断是否已有同种商品
@@ -33,11 +37,22 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
-  const delCart = (skuId) => {
-    const itm = cartList.value.findIndex((item) => item.skuId === skuId)
-    //注意splice和slice
-    cartList.value.splice(itm, 1)
+  //删除购物车操作
+
+
+
+  const delCart = async (skuId) => {
+    if (isLogin.value) {
+      await deleteCartAPI([skuId])
+      updateCart()
+    } else {
+      const itm = cartList.value.findIndex((item) => item.skuId === skuId)
+      //注意splice和slice
+      cartList.value.splice(itm, 1)
+    }
   }
+
+
 
   //计算属性计算购物车总共的件数和money
   const amount = computed(() => cartList.value.reduce((accumulator, currentNum) => accumulator + currentNum.count, 0))
