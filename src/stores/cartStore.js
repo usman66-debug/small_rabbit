@@ -25,12 +25,19 @@ export const useCartStore = defineStore('cart', () => {
   //计算属性计算购物车总共的件数和money
   const amount = computed(() => cartList.value.reduce((accumulator, currentNum) => accumulator + currentNum.count, 0))
   const totalMoney = computed(() => cartList.value.reduce((accumulator, currentNum) => accumulator + currentNum.count * currentNum.price, 0))
+
+  const singleCheck = (skuId, selected) => {
+    const item = cartList.value.find((item) => item.skuId === skuId)
+    item.selected = selected
+  }
+
   return {
     cartList,
     addCartList,
     delCart,
     amount,
-    totalMoney
+    totalMoney,
+    singleCheck
   }
 }, {
   persist: true
