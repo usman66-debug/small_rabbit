@@ -38,9 +38,6 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   //删除购物车操作
-
-
-
   const delCart = async (skuId) => {
     if (isLogin.value) {
       await deleteCartAPI([skuId])
@@ -52,7 +49,10 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
-
+  //清除购物车操作
+  const clearCart = () => {
+    cartList.value = []
+  }
 
   //计算属性计算购物车总共的件数和money
   const amount = computed(() => cartList.value.reduce((accumulator, currentNum) => accumulator + currentNum.count, 0))
@@ -83,7 +83,8 @@ export const useCartStore = defineStore('cart', () => {
     selectedPrice,
     singleCheck,
     isAll,
-    allCheck
+    allCheck,
+    clearCart
   }
 }, {
   persist: true
