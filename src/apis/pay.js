@@ -1,9 +1,7 @@
-import httpInstance from "@/utils/http"
+import httpInstance from "@/utils/http";
 
-export const createOrderAPI = (data) => {
+export const getOrderAPI = (id) => {
   return httpInstance({
-    url: '/member/order',
-    method: 'POST',
-    data
+    url: `/member/order/${id}`
   })
 }
