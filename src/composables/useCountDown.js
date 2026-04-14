@@ -8,14 +8,20 @@ export const useCountDown = () => {
   const formatTime = computed(() => dayjs.unix(time.value).format('mm分ss秒'))
   //传入起始时间，给time赋初值，每秒减一
   const start = (startTime) => {
+    if (timer) clearInterval(timer)
     time.value = startTime
     timer = setInterval(() => {
-      time.value--
+      if (time.value <= 0) {
+        clearInterval(timer)
+      } else {
+        time.value--
+      }
     }, 1000)
   }
+
   //!!!!!!!!!!
   onUnmounted(() => {
-    timer && clearInterval()
+    timer && clearInterval(timer)
   })
 
   return {
