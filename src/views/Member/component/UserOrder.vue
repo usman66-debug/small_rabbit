@@ -26,6 +26,19 @@ const userOrder = async () => {
   total.value = res.result.counts
 }
 
+//定义后端返回的状态码对应的商品状态
+const fomartPayState = (payState) => {
+  const stateMap = {
+    1: '待付款',
+    2: '待发货',
+    3: '待收货',
+    4: '待评价',
+    5: '已完成',
+    6: '已取消'
+  }
+  return stateMap[payState]
+}
+
 //tab栏切换渲染
 const changeTab = (type) => {
   params.value.orderState = type
@@ -85,7 +98,7 @@ onMounted(() => userOrder())
                 </ul>
               </div>
               <div class="column state">
-                <p>{{ order.orderState }}</p>
+                <p>{{ fomartPayState(order.orderState) }}</p>
                 <p v-if="order.orderState === 3">
                   <a href="javascript:;" class="green">查看物流</a>
                 </p>
