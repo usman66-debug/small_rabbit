@@ -63,6 +63,8 @@ const router = createRouter({
         {
           path: 'member',
           component: Member,
+          //记住，前面不加“/”是相对路径，会在当前路径下面追加路径，极易发生路由路径错误，建议都加上“/”成为绝对路由路径
+          redirect: '/member/user',
           children: [
             {
               path: 'user',
