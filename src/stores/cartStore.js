@@ -24,7 +24,7 @@ export const useCartStore = defineStore('cart', () => {
       //添加购物车
       await insertCartAPI({ skuId, count })
       //从后端获取最新购物车信息
-      updateCart()
+      await updateCart()
     } else {
       //添加购物车操作
       //判断是否已有同种商品
@@ -41,7 +41,7 @@ export const useCartStore = defineStore('cart', () => {
   const delCart = async (skuId) => {
     if (isLogin.value) {
       await deleteCartAPI([skuId])
-      updateCart()
+      await updateCart()
     } else {
       const itm = cartList.value.findIndex((item) => item.skuId === skuId)
       //注意splice和slice
@@ -64,13 +64,14 @@ export const useCartStore = defineStore('cart', () => {
   //单选框状态绑定
   const singleCheck = (skuId, selected) => {
     const item = cartList.value.find((item) => item.skuId === skuId)
+    if (!item) return
     item.selected = selected
   }
 
   //全选逻辑
-  const isAll = computed(() => cartList.value.every((item) => item.selected))
+  const isAll = computed(() => cartList.value.length > 0 && cartList.value.every((item) => item.selected))
   const allCheck = (selected) => {
-    cartList.value.forEach((item) => item.selected = selected)
+    cartList.value.forEach((item) => { item.selected = selected })
   }
 
   return {

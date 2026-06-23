@@ -10,7 +10,32 @@ const checkInfo = ref({})  // 订单对象
 const curAddress = ref({})  // 地址对象
 const getCheckout = async () => {
   const res = await getCheckoutAPI()
-  checkInfo.value = res.result
+  const selectedGoods = cartStore.cartList
+    .filter((item) => item.selected)
+    .map((item) => {
+      const totalPrice = Number(item.price) * item.count
+      return {
+        ...item,
+        totalPrice,
+        totalPayPrice: totalPrice
+      }
+    })
+  const totalPrice = selectedGoods.reduce((sum, item) => sum + item.totalPrice, 0)
+  const goodsCount = selectedGoods.reduce((sum, item) => sum + item.count, 0)
+  const postFee = Number(res.result.summary?.postFee ?? 0)
+
+  // 接口提供地址等预订单基础信息，商品与金额以购物车当前选中数据为准
+  checkInfo.value = {
+    ...res.result,
+    goods: selectedGoods,
+    summary: {
+      ...res.result.summary,
+      goodsCount,
+      totalPrice,
+      postFee,
+      totalPayPrice: totalPrice + postFee
+    }
+  }
   //默认地址
   curAddress.value = res.result.userAddresses.find((item) => item.isDefault === 0)
 }
@@ -107,7 +132,7 @@ onMounted(() => getCheckout())
                   </a>
                 </td>
                 <td>&yen;{{ i.price }}</td>
-                <td>{{ i.price }}</td>
+                <td>{{ i.count }}</td>
                 <td>&yen;{{ i.totalPrice }}</td>
                 <td>&yen;{{ i.totalPayPrice }}</td>
               </tr>

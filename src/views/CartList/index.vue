@@ -1,17 +1,35 @@
 <script setup>
+import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import { useCartStore } from '@/stores/cartStore'
+import { useGetUser } from '@/stores/user'
 
 const cartStore = useCartStore()
+const userStore = useGetUser()
+const router = useRouter()
 
-const singleCheck = (i, selected) => {
-  cartStore.singleCheck(i.skuId, selected)
+const singleCheck = (item, selected) => {
+  cartStore.singleCheck(item.skuId, selected)
 }
 
 const allCheck = (selected) => {
   cartStore.allCheck(selected)
 }
 
+const goCheckout = () => {
+  if (!cartStore.selectedAmount) {
+    ElMessage.warning('请先选择需要结算的商品')
+    return
+  }
 
+  if (!userStore.userInfo.token) {
+    ElMessage.warning('请先登录后再结算')
+    router.push('/login')
+    return
+  }
+
+  router.push('/checkout')
+}
 </script>
 
 <template>
@@ -52,7 +70,7 @@ const allCheck = (selected) => {
                 <p>&yen;{{ i.price }}</p>
               </td>
               <td class="tc">
-                <el-input-number v-model="i.count" />
+                <el-input-number v-model="i.count" :min="1" :max="i.stock" />
               </td>
               <td class="tc">
                 <p class="f16 red">&yen;{{ (i.price * i.count).toFixed(2) }}</p>
@@ -88,7 +106,7 @@ const allCheck = (selected) => {
           <span class="red">¥ {{ cartStore.selectedPrice.toFixed(2) }} </span>
         </div>
         <div class="total">
-          <el-button size="large" type="primary" @click="$router.push('/checkout')">下单结算</el-button>
+          <el-button size="large" type="primary" @click="goCheckout">下单结算</el-button>
         </div>
       </div>
     </div>
