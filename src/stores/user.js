@@ -2,7 +2,6 @@ import { loginAPI } from '@/apis/user'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { useCartStore } from './cartStore'
-import { mergeCartAPI } from '@/apis/cart'
 import httpInstance from '@/utils/http'
 
 export const useGetUser = defineStore('user', () => {
@@ -12,16 +11,8 @@ export const useGetUser = defineStore('user', () => {
   const getUserInfo = async ({ account, password }) => {
     const res = await loginAPI({ account, password })
     userInfo.value = res.result
-    //合并购物车
-    await mergeCartAPI(cartStore.cartList.map((item) => {
-      return {
-        skuId: item.skuId,
-        selected: item.selected,
-        count: item.count
-      }
-    }))
-    //更新购物车
-    cartStore.updateCart()
+    //必须等待本地购物车合并和服务端购物车回填完成后，登录流程才算结束
+    await cartStore.mergeLocalCartToServer()
   }
   //退出登录
   const clearUser = () => {

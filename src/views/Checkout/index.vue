@@ -1,8 +1,9 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { getCheckoutAPI, createOrderAPI } from '@/apis/checkout'
 import { useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cartStore'
+import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 const cartStore = useCartStore()
@@ -10,44 +11,61 @@ const checkInfo = ref({})  // 订单对象
 const curAddress = ref({})  // 地址对象
 const getCheckout = async () => {
   const res = await getCheckoutAPI()
-  const selectedGoods = cartStore.cartList
-    .filter((item) => item.selected)
-    .map((item) => {
-      const totalPrice = Number(item.price) * item.count
-      return {
-        ...item,
-        totalPrice,
-        totalPayPrice: totalPrice
-      }
-    })
-  const totalPrice = selectedGoods.reduce((sum, item) => sum + item.totalPrice, 0)
-  const goodsCount = selectedGoods.reduce((sum, item) => sum + item.count, 0)
-  const postFee = Number(res.result.summary?.postFee ?? 0)
-
-  // 接口提供地址等预订单基础信息，商品与金额以购物车当前选中数据为准
-  checkInfo.value = {
-    ...res.result,
-    goods: selectedGoods,
-    summary: {
-      ...res.result.summary,
-      goodsCount,
-      totalPrice,
-      postFee,
-      totalPayPrice: totalPrice + postFee
-    }
-  }
+  //预订单接口返回的商品才是后端认可、可以创建订单的有效商品
+  checkInfo.value = res.result
   //默认地址
-  curAddress.value = res.result.userAddresses.find((item) => item.isDefault === 0)
+  curAddress.value = res.result.userAddresses?.find((item) => item.isDefault === 0)
+    || res.result.userAddresses?.[0]
+    || null
+
+  const localSkuIds = cartStore.cartList
+    .filter((item) => item.selected && item.isEffective !== false)
+    .map((item) => item.skuId)
+  const serverSkuIds = (res.result.goods || []).map((item) => item.skuId)
+  const isSameGoods = localSkuIds.length === serverSkuIds.length
+    && localSkuIds.every((skuId) => serverSkuIds.includes(skuId))
+
+  if (!isSameGoods) {
+    ElMessage.warning('购物车数据与服务端结算商品不一致，已以后端有效商品为准')
+  }
+
+  if (!serverSkuIds.length) {
+    ElMessage.warning('没有可结算的有效商品，请返回购物车重新选择')
+  }
 }
+
+const canSubmit = computed(() => {
+  const goods = checkInfo.value.goods
+  return Boolean(curAddress.value?.id)
+    && Array.isArray(goods)
+    && goods.length > 0
+    && goods.every((item) => item.skuId && Number(item.count) > 0)
+})
 
 //跳转支付页面
 const createOrder = async () => {
+  if (!curAddress.value?.id) {
+    ElMessage.warning('请先选择有效的收货地址')
+    return
+  }
+
+  const goods = checkInfo.value.goods
+  if (!Array.isArray(goods) || goods.length === 0) {
+    ElMessage.warning('没有可提交的有效商品，请返回购物车重新选择')
+    return
+  }
+
+  if (goods.some((item) => !item.skuId || Number(item.count) <= 0)) {
+    ElMessage.warning('结算商品数据无效，请返回购物车重新选择')
+    return
+  }
+
   const res = await createOrderAPI({
     deliveryTimeType: 1,
     payType: 1,
     payChannel: 1,
     buyerMessage: '',
-    goods: checkInfo.value.goods.map((item) => {
+    goods: goods.map((item) => {
       return {
         skuId: item.skuId,
         count: item.count
@@ -177,7 +195,7 @@ onMounted(() => getCheckout())
         </div>
         <!-- 提交订单 -->
         <div class="submit">
-          <el-button type="primary" size="large" @click="createOrder()">提交订单</el-button>
+          <el-button type="primary" size="large" :disabled="!canSubmit" @click="createOrder()">提交订单</el-button>
         </div>
       </div>
     </div>

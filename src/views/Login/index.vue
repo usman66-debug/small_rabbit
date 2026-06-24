@@ -35,22 +35,28 @@ const rules = {
 //通过给标签绑定ref来获取form实例,在这之后才能调用实例方法
 const formRef = ref(null)
 const router = useRouter()
+const loginLoading = ref(false)
 const loginCheck = () => {
   const { account, password } = form.value
   const getUser = useGetUser()
   //调用实例方法
   //参数valid:所有表单验证都通过后才为true
-  formRef.value.validate((valid) => {
-    console.log(valid);
+  formRef.value.validate(async (valid) => {
     if (valid) {
-      //做出登录操作
-      getUser.getUserInfo({ account, password })
-      //跳转到首页 ，给出成功弹窗并且防止用户回退到登录页面
-      ElMessage({
-        type: 'success',
-        message: '登录成功'
-      })
-      router.replace({ path: '/' })
+      loginLoading.value = true
+      try {
+        //等待登录、购物车合并、服务端购物车回填全部完成
+        await getUser.getUserInfo({ account, password })
+        ElMessage({
+          type: 'success',
+          message: '登录成功'
+        })
+        router.replace({ path: '/' })
+      } catch (error) {
+        console.error('登录或购物车同步失败', error)
+      } finally {
+        loginLoading.value = false
+      }
     }
   })
 }
@@ -96,7 +102,8 @@ const loginCheck = () => {
                   我已同意隐私条款和服务条款
                 </el-checkbox>
               </el-form-item>
-              <el-button size="large" class="subBtn" @click="loginCheck">点击登录</el-button>
+              <el-button size="large" class="subBtn" :loading="loginLoading" :disabled="loginLoading"
+                @click="loginCheck">点击登录</el-button>
             </el-form>
           </div>
         </div>

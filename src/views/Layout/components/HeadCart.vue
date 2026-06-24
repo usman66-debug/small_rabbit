@@ -18,6 +18,7 @@ const cartStore = useCartStore()
             <div class="center">
               <p class="name ellipsis-2">
                 {{ i.name }}
+                <span v-if="i.isEffective === false" class="invalid-tag">已失效</span>
               </p>
               <p class="attr ellipsis">{{ i.attrsText }}</p>
             </div>
@@ -192,6 +193,12 @@ const cartStore = useCartStore()
 
           .name {
             font-size: 16px;
+
+            .invalid-tag {
+              margin-left: 6px;
+              color: $priceColor;
+              font-size: 12px;
+            }
           }
 
           .attr {

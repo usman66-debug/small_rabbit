@@ -51,10 +51,11 @@ const goCheckout = () => {
           </thead>
           <!-- 商品列表 -->
           <tbody>
-            <tr v-for="i in cartStore.cartList" :key="i.id">
+            <tr v-for="i in cartStore.cartList" :key="i.id" :class="{ invalid: i.isEffective === false }">
               <td>
                 <!-- 将单选框状态和pinia库中选中状态绑定 -->
-                <el-checkbox :model-value="i.selected" @change="(selected) => singleCheck(i, selected)" />
+                <el-checkbox :model-value="i.selected" :disabled="i.isEffective === false"
+                  @change="(selected) => singleCheck(i, selected)" />
               </td>
               <td>
                 <div class="goods">
@@ -62,6 +63,7 @@ const goCheckout = () => {
                   <div>
                     <p class="name ellipsis">
                       {{ i.name }}
+                      <span v-if="i.isEffective === false" class="invalid-tag">已失效</span>
                     </p>
                   </div>
                 </div>
@@ -70,7 +72,7 @@ const goCheckout = () => {
                 <p>&yen;{{ i.price }}</p>
               </td>
               <td class="tc">
-                <el-input-number v-model="i.count" :min="1" :max="i.stock" />
+                <el-input-number v-model="i.count" :min="1" :max="i.stock" :disabled="i.isEffective === false" />
               </td>
               <td class="tc">
                 <p class="f16 red">&yen;{{ (i.price * i.count).toFixed(2) }}</p>
@@ -155,6 +157,20 @@ const goCheckout = () => {
       color: #999;
       padding: 20px 0;
     }
+  }
+
+  tr.invalid {
+    color: #aaa;
+
+    img {
+      opacity: 0.5;
+    }
+  }
+
+  .invalid-tag {
+    margin-left: 8px;
+    color: $priceColor;
+    font-size: 13px;
   }
 
   .tc {
