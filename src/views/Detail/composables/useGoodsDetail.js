@@ -1,5 +1,5 @@
 import { getDetailAPI } from "@/apis/detail";
-import { ref, onMounted } from 'vue'
+import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 
@@ -11,7 +11,11 @@ export const useGoodsDetail = () => {
     detailList.value = res.result
   }
 
-  onMounted(() => getGoodsDetail())
+  watch(
+    () => route.params.id,
+    () => getGoodsDetail(),
+    { immediate: true }
+  )
 
   return {
     detailList,

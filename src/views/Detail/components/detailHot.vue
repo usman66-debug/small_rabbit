@@ -1,6 +1,6 @@
 <script setup>
 import { getHotGoodsAPI } from '@/apis/detail'
-import { ref, onMounted, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 const props = defineProps({
@@ -16,7 +16,7 @@ const typeMap = {
 
 const title = computed(() => typeMap[props.hotType])
 
-const hotList = ref({})
+const hotList = ref([])
 const route = useRoute()
 const getHotGoods = async () => {
   const res = await getHotGoodsAPI({
@@ -26,7 +26,11 @@ const getHotGoods = async () => {
   hotList.value = res.result
 }
 
-onMounted(() => getHotGoods())
+watch(
+  () => route.params.id,
+  () => getHotGoods(),
+  { immediate: true }
+)
 
 </script>
 
@@ -35,7 +39,7 @@ onMounted(() => getHotGoods())
   <div class="goods-hot">
     <h3>{{ title }}</h3>
     <!-- 商品区块 -->
-    <RouterLink to="/" class="goods-item" v-for="item in hotList" :key="item.id">
+    <RouterLink :to="`/detail/${item.id}`" class="goods-item" v-for="item in hotList" :key="item.id">
       <img :src="item.picture" alt="" />
       <p class="name ellipsis">{{ item.name }}</p>
       <p class="desc ellipsis">{{ item.desc }}</p>

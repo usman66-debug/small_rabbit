@@ -5,6 +5,7 @@ import Home from '@/views/Home/index.vue'
 import Category from '@/views/Category/index.vue'
 import SubCategory from '@/views/SubCategory/index.vue'
 import AllGoods from '@/views/AllGoods/index.vue'
+import ComingSoon from '@/views/ComingSoon/index.vue'
 import Detail from '@/views/Detail/index.vue'
 import CartList from '@/views/CartList/index.vue'
 import Checkout from '@/views/Checkout/index.vue'
@@ -36,6 +37,10 @@ const router = createRouter({
         {
           path: '/category/sub/:id',
           component: SubCategory
+        },
+        {
+          path: '/coming-soon',
+          component: ComingSoon
         },
         {
           path: '/detail/:id',
