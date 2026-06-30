@@ -1,7 +1,7 @@
 <script setup>
-import { getHotGoodsAPI } from '@/apis/detail'
-import { ref, computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { getHotGoodsAPI } from '@/apis/detail'
 
 const props = defineProps({
   hotType: {
@@ -15,39 +15,62 @@ const typeMap = {
 }
 
 const title = computed(() => typeMap[props.hotType])
-
 const hotList = ref([])
+const loading = ref(false)
 const route = useRoute()
-const getHotGoods = async () => {
-  const res = await getHotGoodsAPI({
-    id: route.params.id,
-    type: props.hotType
-  })
-  hotList.value = res.result
+let requestId = 0
+
+const getHotGoods = async (id = route.params.id) => {
+  const currentRequestId = ++requestId
+  loading.value = true
+
+  try {
+    const res = await getHotGoodsAPI({
+      id,
+      type: props.hotType
+    })
+    if (currentRequestId !== requestId) return
+    hotList.value = res.result || []
+  } catch (e) {
+    if (currentRequestId !== requestId) return
+    hotList.value = []
+  } finally {
+    if (currentRequestId === requestId) {
+      loading.value = false
+    }
+  }
 }
 
 watch(
   () => route.params.id,
-  () => getHotGoods(),
+  (id) => getHotGoods(id),
   { immediate: true }
 )
-
 </script>
-
 
 <template>
   <div class="goods-hot">
     <h3>{{ title }}</h3>
-    <!-- 商品区块 -->
-    <RouterLink :to="`/detail/${item.id}`" class="goods-item" v-for="item in hotList" :key="item.id">
-      <img :src="item.picture" alt="" />
-      <p class="name ellipsis">{{ item.name }}</p>
-      <p class="desc ellipsis">{{ item.desc }}</p>
-      <p class="price">&yen;{{ item.price }}</p>
-    </RouterLink>
+
+    <template v-if="!loading">
+      <RouterLink :to="`/detail/${item.id}`" class="goods-item" v-for="item in hotList" :key="item.id">
+        <img :src="item.picture" alt="" />
+        <p class="name ellipsis">{{ item.name }}</p>
+        <p class="desc ellipsis">{{ item.desc }}</p>
+        <p class="price">&yen;{{ item.price }}</p>
+      </RouterLink>
+    </template>
+
+    <div class="hot-skeleton" v-else>
+      <div class="skeleton-item" v-for="item in 3" :key="item">
+        <span class="pic"></span>
+        <span class="name"></span>
+        <span class="desc"></span>
+        <span class="price"></span>
+      </div>
+    </div>
   </div>
 </template>
-
 
 <style scoped lang="scss">
 .goods-hot {
@@ -71,6 +94,8 @@ watch(
     img {
       width: 160px;
       height: 160px;
+      object-fit: cover;
+      background: #f5f5f5;
     }
 
     p {
@@ -90,6 +115,54 @@ watch(
       color: $priceColor;
       font-size: 20px;
     }
+  }
+
+  .hot-skeleton {
+    background: #fff;
+
+    .skeleton-item {
+      padding: 20px 30px;
+      text-align: center;
+
+      span {
+        display: block;
+        margin: 0 auto 12px;
+        border-radius: 4px;
+        background: linear-gradient(90deg, #eee 25%, #f7f7f7 37%, #eee 63%);
+        background-size: 400% 100%;
+        animation: skeleton-loading 1.4s ease infinite;
+      }
+
+      .pic {
+        width: 160px;
+        height: 160px;
+      }
+
+      .name {
+        width: 180px;
+        height: 20px;
+      }
+
+      .desc {
+        width: 130px;
+        height: 18px;
+      }
+
+      .price {
+        width: 96px;
+        height: 24px;
+      }
+    }
+  }
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0 50%;
   }
 }
 </style>

@@ -1,19 +1,20 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Layout from '@/views/Layout/index.vue'
-import Login from '@/views/Login/index.vue'
-import Home from '@/views/Home/index.vue'
-import Category from '@/views/Category/index.vue'
-import SubCategory from '@/views/SubCategory/index.vue'
-import AllGoods from '@/views/AllGoods/index.vue'
-import ComingSoon from '@/views/ComingSoon/index.vue'
-import Detail from '@/views/Detail/index.vue'
-import CartList from '@/views/CartList/index.vue'
-import Checkout from '@/views/Checkout/index.vue'
-import Pay from '@/views/Pay/index.vue'
-import PayBack from '@/views/Pay/PayBack.vue'
-import Member from '@/views/Member/index.vue'
-import UserInfo from '@/views/Member/component/UserInfo.vue'
-import UserOrder from '@/views/Member/component/UserOrder.vue'
+
+const Layout = () => import('@/views/Layout/index.vue')
+const Login = () => import('@/views/Login/index.vue')
+const Home = () => import('@/views/Home/index.vue')
+const Category = () => import('@/views/Category/index.vue')
+const SubCategory = () => import('@/views/SubCategory/index.vue')
+const AllGoods = () => import('@/views/AllGoods/index.vue')
+const ComingSoon = () => import('@/views/ComingSoon/index.vue')
+const Detail = () => import('@/views/Detail/index.vue')
+const CartList = () => import('@/views/CartList/index.vue')
+const Checkout = () => import('@/views/Checkout/index.vue')
+const Pay = () => import('@/views/Pay/index.vue')
+const PayBack = () => import('@/views/Pay/PayBack.vue')
+const Member = () => import('@/views/Member/index.vue')
+const UserInfo = () => import('@/views/Member/component/UserInfo.vue')
+const UserOrder = () => import('@/views/Member/component/UserOrder.vue')
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),

@@ -5,7 +5,7 @@ const categoryStore = useGetCategory()
 
 <template>
   <div class="home-category">
-    <ul class="menu">
+    <ul class="menu" v-if="categoryStore.categoryList.length">
       <li v-for="item in categoryStore.categoryList" :key="item.id">
         <RouterLink :to="`/category/${item.id}`">{{ item.name }}</RouterLink>
         <RouterLink v-for="i in item.children.slice(0, 2)" :key="i.id" :to="`/category/sub/${i.id}`">{{ i.name }}
@@ -28,6 +28,12 @@ const categoryStore = useGetCategory()
             </li>
           </ul>
         </div>
+      </li>
+    </ul>
+    <ul class="menu skeleton-menu" v-else>
+      <li v-for="item in 9" :key="item">
+        <span class="skeleton-main"></span>
+        <span class="skeleton-sub"></span>
       </li>
     </ul>
   </div>
@@ -154,6 +160,44 @@ const categoryStore = useGetCategory()
         }
       }
     }
+
+    &.skeleton-menu {
+      li {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        &:hover {
+          background: transparent;
+        }
+
+        span {
+          height: 16px;
+          border-radius: 4px;
+          background: rgba(255, 255, 255, .22);
+          animation: category-skeleton 1.4s ease-in-out infinite;
+        }
+
+        .skeleton-main {
+          width: 54px;
+        }
+
+        .skeleton-sub {
+          width: 92px;
+        }
+      }
+    }
+  }
+}
+
+@keyframes category-skeleton {
+  0%,
+  100% {
+    opacity: .45;
+  }
+
+  50% {
+    opacity: 1;
   }
 }
 </style>

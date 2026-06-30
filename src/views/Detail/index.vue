@@ -1,79 +1,95 @@
 <script setup>
-import { useGoodsDetail } from './composables/useGoodsDetail';
-import detailHot from './components/detailHot.vue'
-import { ref } from 'vue'
-import { ElMessage } from 'element-plus';
+import { computed, ref, watch } from 'vue'
+import { ElMessage } from 'element-plus'
 import { useCartStore } from '@/stores/cartStore'
+import { useGoodsDetail } from './composables/useGoodsDetail'
+import DetailHot from './components/detailHot.vue'
 
-
-const { detailList } = useGoodsDetail()
+const { detailList, loading, error } = useGoodsDetail()
 const cartStore = useCartStore()
 
-let skuObj = ref({})
+const skuObj = ref({})
+const count = ref(1)
+const detailReady = computed(() => detailList.value.categories?.length)
+
+watch(
+  () => detailList.value.id,
+  () => {
+    skuObj.value = {}
+    count.value = 1
+  }
+)
+
 const skuChange = (emit) => {
-  console.log(emit);
   skuObj.value = emit
 }
 
-const count = ref(1)
-const countChange = (count) => {
-  console.log(count);
-}
-
 const addCartList = () => {
-  if (skuObj.value.skuId) {
-    //加入购物车
-    cartStore.addCartList(
-      {
-        id: detailList.value.id,
-        name: detailList.value.name,
-        picture: detailList.value.mainPictures[0],
-        price: detailList.value.price,
-        count: count.value,
-        skuId: skuObj.value.skuId,
-        attrsText: skuObj.value.specsText,
-        selected: true
-      }
-    )
-  } else {
-    ElMessage.warning('请选择规格！！！')
+  if (!skuObj.value.skuId) {
+    ElMessage.warning('请选择规格')
+    return
   }
-}
 
+  cartStore.addCartList({
+    id: detailList.value.id,
+    name: detailList.value.name,
+    picture: detailList.value.mainPictures?.[0],
+    price: detailList.value.price,
+    count: count.value,
+    skuId: skuObj.value.skuId,
+    attrsText: skuObj.value.specsText,
+    selected: true
+  })
+}
 </script>
 
 <template>
   <div class="xtx-goods-page">
-    <div class="container" v-if="detailList.categories">
-      <div class="bread-container">
-        <el-breadcrumb separator=">">
-          <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-          <!--
-            直接传参数会报错不显示，因为detailList一开始是空对象，{}.categories是undefined.
-            解决办法是：1.可选链语法“?.”；
-                       2.整个模块用v-if手动控制渲染时机，保证只有数据存在才渲染（这里我采用第二种）
-          -->
-          <el-breadcrumb-item :to="{ path: `/category/${detailList.categories[1].id}` }">{{ detailList.categories[1].name
-          }}
-          </el-breadcrumb-item>
-          <el-breadcrumb-item :to="{ path: `/category/sub/${detailList.categories[0].id}` }">{{
-            detailList.categories[0].name }}
-          </el-breadcrumb-item>
-          <el-breadcrumb-item>{{ detailList.name }}</el-breadcrumb-item>
-        </el-breadcrumb>
-      </div>
-      <!-- 商品信息 -->
-      <div class="info-container">
-        <div>
+    <div class="container detail-container">
+      <template v-if="loading">
+        <div class="detail-skeleton">
+          <div class="skeleton-bread"></div>
+          <div class="skeleton-info">
+            <div class="skeleton-left">
+              <div class="skeleton-img"></div>
+              <div class="skeleton-sales">
+                <span v-for="item in 4" :key="item"></span>
+              </div>
+            </div>
+            <div class="skeleton-right">
+              <div class="skeleton-line title"></div>
+              <div class="skeleton-line desc"></div>
+              <div class="skeleton-line price"></div>
+              <div class="skeleton-block"></div>
+              <div class="skeleton-line spec"></div>
+              <div class="skeleton-line spec short"></div>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <template v-else-if="detailReady">
+        <div class="bread-container">
+          <el-breadcrumb separator=">">
+            <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+            <el-breadcrumb-item :to="{ path: `/category/${detailList.categories[1].id}` }">
+              {{ detailList.categories[1].name }}
+            </el-breadcrumb-item>
+            <el-breadcrumb-item :to="{ path: `/category/sub/${detailList.categories[0].id}` }">
+              {{ detailList.categories[0].name }}
+            </el-breadcrumb-item>
+            <el-breadcrumb-item>{{ detailList.name }}</el-breadcrumb-item>
+          </el-breadcrumb>
+        </div>
+
+        <div class="info-container">
           <div class="goods-info">
             <div class="media">
-              <!-- 图片预览区 -->
-              <XtxImageView :image-list="detailList.mainPictures" />
-              <!-- 统计数量 -->
+              <XtxImageView :image-list="detailList.mainPictures || []" />
               <ul class="goods-sales">
                 <li>
                   <p>销量人气</p>
-                  <p> {{ detailList.salesCount }}+ </p>
+                  <p>{{ detailList.salesCount }}+</p>
                   <p><i class="iconfont icon-task-filling"></i>销量人气</p>
                 </li>
                 <li>
@@ -93,14 +109,15 @@ const addCartList = () => {
                 </li>
               </ul>
             </div>
+
             <div class="spec">
-              <!-- 商品信息区 -->
-              <p class="g-name"> {{ detailList.name }} </p>
-              <p class="g-desc">{{ detailList.desc }} </p>
+              <p class="g-name">{{ detailList.name }}</p>
+              <p class="g-desc">{{ detailList.desc }}</p>
               <p class="g-price">
                 <span>{{ detailList.price }}</span>
                 <span>{{ detailList.oldPrice }}</span>
               </p>
+
               <div class="g-service">
                 <dl>
                   <dt>促销</dt>
@@ -116,54 +133,55 @@ const addCartList = () => {
                   </dd>
                 </dl>
               </div>
-              <!-- sku组件 -->
-              <XtxSku :goods="detailList" @change="skuChange" />
-              <!-- 数据组件 -->
-              <el-input-number v-model="count" @change="countChange" />
-              <!-- 按钮组件 -->
-              <div>
-                <el-button size="large" class="btn" @click="addCartList">
-                  加入购物车
-                </el-button>
-              </div>
 
+              <XtxSku :goods="detailList" @change="skuChange" />
+              <el-input-number v-model="count" />
+              <div>
+                <el-button size="large" class="btn" @click="addCartList">加入购物车</el-button>
+              </div>
             </div>
           </div>
+
           <div class="goods-footer">
             <div class="goods-article">
-              <!-- 商品详情 -->
               <div class="goods-tabs">
                 <nav>
                   <a>商品详情</a>
                 </nav>
                 <div class="goods-detail">
-                  <!-- 属性 -->
                   <ul class="attrs">
-                    <li v-for="item in detailList.details.properties" :key="item.value">
+                    <li v-for="item in detailList.details?.properties" :key="item.value">
                       <span class="dt">{{ item.name }}</span>
                       <span class="dd">{{ item.value }}</span>
                     </li>
                   </ul>
-                  <!-- 图片 -->
-                  <img v-for="item in detailList.details.pictures" :src="item" :key="item" />
+                  <img v-for="item in detailList.details?.pictures" :src="item" :key="item" />
                 </div>
               </div>
             </div>
-            <!-- 24热榜+专题推荐 -->
+
             <div class="goods-aside">
-              <detailHot :hot-type="1" />
-              <detailHot :hot-type="2" />
+              <DetailHot :hot-type="1" />
+              <DetailHot :hot-type="2" />
             </div>
           </div>
         </div>
-      </div>
+      </template>
+
+      <el-empty v-else-if="error" class="detail-empty" description="商品加载失败，请稍后再试" />
+      <el-empty v-else class="detail-empty" description="暂无商品信息" />
     </div>
   </div>
 </template>
 
-
-<style scoped lang='scss'>
+<style scoped lang="scss">
 .xtx-goods-page {
+  background: #f5f5f5;
+
+  .detail-container {
+    min-height: calc(100vh - 185px);
+  }
+
   .goods-info {
     min-height: 600px;
     background: #fff;
@@ -201,23 +219,6 @@ const addCartList = () => {
     background: #fff;
   }
 
-  .goods-warn {
-    min-height: 600px;
-    background: #fff;
-    margin-top: 20px;
-  }
-
-  .number-box {
-    display: flex;
-    align-items: center;
-
-    .label {
-      width: 60px;
-      color: #999;
-      padding-left: 10px;
-    }
-  }
-
   .g-name {
     font-size: 22px;
   }
@@ -232,7 +233,7 @@ const addCartList = () => {
 
     span {
       &::before {
-        content: "¥";
+        content: "￥";
         font-size: 14px;
       }
 
@@ -253,7 +254,7 @@ const addCartList = () => {
   .g-service {
     background: #f5f5f5;
     width: 500px;
-    padding: 20px 10px 0 10px;
+    padding: 20px 10px 0;
     margin-top: 10px;
 
     dl {
@@ -338,6 +339,10 @@ const addCartList = () => {
   }
 }
 
+.bread-container {
+  padding: 25px 0;
+}
+
 .goods-tabs {
   min-height: 600px;
   background: #fff;
@@ -352,12 +357,6 @@ const addCartList = () => {
       padding: 0 40px;
       font-size: 18px;
       position: relative;
-
-      >span {
-        color: $priceColor;
-        font-size: 16px;
-        margin-left: 10px;
-      }
     }
   }
 }
@@ -394,10 +393,115 @@ const addCartList = () => {
 
 .btn {
   margin-top: 20px;
-
 }
 
-.bread-container {
-  padding: 25px 0;
+.detail-empty {
+  min-height: 520px;
+  background: #fff;
+}
+
+.detail-skeleton {
+  padding-bottom: 20px;
+
+  .skeleton-bread {
+    width: 360px;
+    height: 22px;
+    margin: 25px 0;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #eee 25%, #f7f7f7 37%, #eee 63%);
+    background-size: 400% 100%;
+    animation: skeleton-loading 1.4s ease infinite;
+  }
+
+  .skeleton-info {
+    min-height: 600px;
+    display: flex;
+    background: #fff;
+  }
+
+  .skeleton-left {
+    width: 580px;
+    padding: 30px 50px;
+  }
+
+  .skeleton-img {
+    width: 400px;
+    height: 400px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #eee 25%, #f7f7f7 37%, #eee 63%);
+    background-size: 400% 100%;
+    animation: skeleton-loading 1.4s ease infinite;
+  }
+
+  .skeleton-sales {
+    width: 400px;
+    height: 120px;
+    margin-top: 30px;
+    display: flex;
+    justify-content: space-between;
+
+    span {
+      width: 82px;
+      height: 72px;
+      border-radius: 4px;
+      background: #f3f3f3;
+    }
+  }
+
+  .skeleton-right {
+    flex: 1;
+    padding: 40px 30px 30px 0;
+  }
+
+  .skeleton-line,
+  .skeleton-block {
+    border-radius: 4px;
+    background: linear-gradient(90deg, #eee 25%, #f7f7f7 37%, #eee 63%);
+    background-size: 400% 100%;
+    animation: skeleton-loading 1.4s ease infinite;
+  }
+
+  .skeleton-line {
+    height: 24px;
+    margin-bottom: 20px;
+
+    &.title {
+      width: 70%;
+      height: 32px;
+    }
+
+    &.desc {
+      width: 56%;
+    }
+
+    &.price {
+      width: 180px;
+      height: 34px;
+    }
+
+    &.spec {
+      width: 72%;
+    }
+
+    &.short {
+      width: 48%;
+    }
+  }
+
+  .skeleton-block {
+    width: 500px;
+    height: 116px;
+    margin: 18px 0 28px;
+  }
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0 50%;
+  }
 }
 </style>

@@ -7,7 +7,14 @@ import LayoutFixed from './components/LayoutFixed.vue';
 import { useGetCategory } from '@/stores/category'
 
 const categoryStore = useGetCategory()
-onMounted(() => categoryStore.getCategory())
+onMounted(() => {
+  const hasCache = categoryStore.categoryList.length
+  categoryStore.getCategory().catch(() => {})
+
+  if (hasCache) {
+    categoryStore.getCategory({ force: true }).catch(() => {})
+  }
+})
 </script>
 
 <template>

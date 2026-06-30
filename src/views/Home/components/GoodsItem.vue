@@ -32,6 +32,8 @@ defineProps({
   img {
     width: 160px;
     height: 160px;
+    object-fit: cover;
+    background: #f5f5f5;
   }
 
   p {
