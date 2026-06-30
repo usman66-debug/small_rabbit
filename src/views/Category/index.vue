@@ -30,6 +30,12 @@ const { categoryData } = useCategory()
       <div class="sub-list">
         <h3>全部分类</h3>
         <ul>
+          <li class="all-goods">
+            <RouterLink :to="`/category/all/${categoryData.id}`">
+              <img :src="categoryData.picture || categoryData.children?.[0]?.picture" />
+              <p>全部商品</p>
+            </RouterLink>
+          </li>
           <li v-for="i in categoryData.children" :key="i.id">
             <RouterLink :to="`/category/sub/${i.id}`">
               <img :src="i.picture" />
@@ -74,6 +80,19 @@ const { categoryData } = useCategory()
         width: 168px;
         height: 160px;
 
+        &.all-goods {
+          a {
+            color: $xtxColor;
+
+            img {
+              padding: 10px;
+              border: 1px solid #e4e4e4;
+              border-radius: 4px;
+              background-color: #f8f8f8;
+              object-fit: cover;
+            }
+          }
+        }
 
         a {
           text-align: center;

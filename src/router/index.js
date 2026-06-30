@@ -4,10 +4,11 @@ import Login from '@/views/Login/index.vue'
 import Home from '@/views/Home/index.vue'
 import Category from '@/views/Category/index.vue'
 import SubCategory from '@/views/SubCategory/index.vue'
+import AllGoods from '@/views/AllGoods/index.vue'
 import Detail from '@/views/Detail/index.vue'
 import CartList from '@/views/CartList/index.vue'
 import Checkout from '@/views/Checkout/index.vue'
-import Pay from "@/views/Pay/index.vue"
+import Pay from '@/views/Pay/index.vue'
 import PayBack from '@/views/Pay/PayBack.vue'
 import Member from '@/views/Member/index.vue'
 import UserInfo from '@/views/Member/component/UserInfo.vue'
@@ -24,55 +25,50 @@ const router = createRouter({
           path: '',
           component: Home
         },
-        // 一级分类
         {
           path: '/category/:id',
           component: Category
         },
-        // 二级分类
+        {
+          path: '/category/all/:id',
+          component: AllGoods
+        },
         {
           path: '/category/sub/:id',
           component: SubCategory
         },
-        // 详情页
         {
           path: '/detail/:id',
           component: Detail
         },
-        //购物车详情页
         {
           path: 'cartlist',
           component: CartList
         },
-        //订单详情页
         {
           path: 'checkout',
           component: Checkout
         },
-        //支付页面
         {
           path: 'pay',
           component: Pay
         },
-        //支付结果页面
         {
           path: 'paycallback',
           component: PayBack
         },
-        //会员中心
         {
           path: 'member',
           component: Member,
-          //记住，前面不加“/”是相对路径，会在当前路径下面追加路径，极易发生路由路径错误，建议都加上“/”成为绝对路由路径
           redirect: '/member/user',
           children: [
             {
               path: 'user',
-              component: UserInfo,
+              component: UserInfo
             },
             {
               path: 'order',
-              component: UserOrder,
+              component: UserOrder
             }
           ]
         }
@@ -83,7 +79,6 @@ const router = createRouter({
       component: Login
     }
   ],
-  // 路由滚动行为配置
   scrollBehavior() {
     return {
       top: 0
